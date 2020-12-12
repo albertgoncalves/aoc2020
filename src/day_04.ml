@@ -171,7 +171,4 @@ let () : unit =
     let xs : string = Prelude.read_file Sys.argv.(1) in
     List.iter
         (fun f -> f xs |> Printf.printf "%d\n")
-        [
-            parse_all_1;
-            parse_all_2;
-        ]
+        [parse_all_1; parse_all_2]
