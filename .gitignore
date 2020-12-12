@@ -1,0 +1,9 @@
+*
+!.gitignore
+!*.nix
+!.shellhook
+!.ocp-indent
+!src/
+!*.ml
+!data/
+!*.txt

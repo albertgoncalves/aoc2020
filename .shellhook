@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+alias open="xdg-open"
+
+export WD=$PWD
+
+for x in bin build; do
+    if [ ! -d "$WD/$x" ]; then
+        mkdir "$WD/$x"
+    fi
+done
+
+export FLAGS=(
+    -ccopt "-static"
+    -g
+    -o "$TARGET"
+    -unboxed-types
+    -w +1..66
+)
+export LIBS=(
+    str.cma
+    unix.cma
+)
+export OCAMLRUNPARAM="a=0,b,c,o=80"
+
+runo () {
+    handle=$(echo "$1" | sed 's/^[a-z\/]*\/\(.*\)\.[a-z]*$/\1/')
+    pwd_=$PWD
+    ocp-indent "$1" > tmp.ml
+    if diff "$1" tmp.ml > /dev/null 2>&1; then
+        rm tmp.ml
+    else
+        mv tmp.ml "$1"
+    fi
+    cp "$WD/src/prelude.ml" "$WD/build"
+    cp "$1" "$WD/build/$handle.ml"
+    (
+        cd "$WD/build" || return
+        ocamlc \
+            "${FLAGS[@]}" \
+            "${LIBS[@]}" \
+            "prelude.ml" \
+            "$handle.ml" \
+            -o "$WD/bin/$handle" \
+            || return
+        cd "$pwd_" || return
+        if [ -n "$2" ]; then
+            "$WD/bin/$handle" "$2" || echo $?
+        else
+            "$WD/bin/$handle" || echo $?
+        fi
+    )
+}
+
+export -f runo
