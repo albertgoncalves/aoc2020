@@ -20,9 +20,9 @@ let str_to_int (xs : string) : int option =
             Some m
         else
             let x : char = xs.[i] in
-            if is_digit x then (
+            if is_digit x then
                 let x : int = (Char.code x) - (Char.code '0') in
                 loop (m + (x * e)) (e * 10) (i - 1)
-            ) else
+            else
                 None in
     loop 0 1 ((String.length xs) - 1)
