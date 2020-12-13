@@ -31,7 +31,7 @@ let to_int ((front_back, left_right) : (t * t)) : int =
         (front_back.min <> front_back.max) ||
         (left_right.min <> left_right.max) in
     if invalid then (
-        Printf.fprintf stderr "to_int\n";
+        Printf.eprintf "to_int\n";
         exit 1
     ) else
         (front_back.min * 8) + left_right.min
@@ -54,7 +54,7 @@ let find_gap (xs : int list) : int =
                 loop (b::xs)
         | _ ->
             (
-                Printf.fprintf stderr "find_gap\n";
+                Printf.eprintf "find_gap\n";
                 exit 1
             ) in
     loop xs

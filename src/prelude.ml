@@ -3,7 +3,7 @@ let read_file (filename : string) : string =
     let size : int = in_channel_length stream in
     let buffer : Bytes.t = Bytes.create size in
     if (input stream buffer 0 size) <> size then (
-        Printf.fprintf stderr "read_file %S\n" filename;
+        Printf.eprintf "read_file %S\n" filename;
         exit 1
     );
     Bytes.to_string buffer
@@ -14,18 +14,18 @@ let split_newlines (s : string) : string array =
 let is_digit (x : char) : bool =
     ('0' <= x) && (x <= '9')
 
-let str_to_int (xs : string) : int option =
+let str_to_int (s : string) : int option =
     let rec loop (m : int) (e : int) (i : int) : int option =
         if i < 0 then
             Some m
         else
-            let x : char = xs.[i] in
+            let x : char = s.[i] in
             if is_digit x then
                 let x : int = (Char.code x) - (Char.code '0') in
                 loop (m + (x * e)) (e * 10) (i - 1)
             else
                 None in
-    loop 0 1 ((String.length xs) - 1)
+    loop 0 1 ((String.length s) - 1)
 
-let str_to_char_array (xs : string) : char array =
-    Array.init (String.length xs) (String.get xs)
+let str_to_char_array (s : string) : char array =
+    Array.init (String.length s) (String.get s)
