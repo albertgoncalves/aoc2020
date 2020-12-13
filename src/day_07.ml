@@ -12,9 +12,9 @@ let tokenize (s : string) : string array =
                 );
                 let j : int = j + 1 in
                 loop j j
-            ) else if x = '.' then (
+            ) else if x = '.' then
                 Queue.add (String.sub s i (j - i)) xs
-            ) else
+            else
                 loop i (j + 1) in
     loop 0 0;
     Queue.to_seq xs |> Array.of_seq
@@ -32,17 +32,16 @@ let parse (xs : string array) : (string * t list) =
     let rec loop (ts : t list) (i : int) : t list =
         if xs.(i) = "no" then
             ts
-        else (
+        else
             let child : t = {
                 label = String.concat " " [xs.(i + 1); xs.(i + 2)];
                 count = Prelude.str_to_int xs.(i) |> Option.get;
             } in
             let j : int = i + 4 in
-            if (j < n) then (
+            if (j < n) then
                 loop (child :: ts) j
-            ) else
-                child :: ts
-        ) in
+            else
+                child :: ts in
     (label, loop [] 4)
 
 let get_table_1
