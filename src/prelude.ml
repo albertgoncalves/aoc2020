@@ -27,5 +27,5 @@ let str_to_int (xs : string) : int option =
                 None in
     loop 0 1 ((String.length xs) - 1)
 
-let str_to_chars (xs : string) : char list =
-    List.init (String.length xs) (String.get xs)
+let str_to_char_array (xs : string) : char array =
+    Array.init (String.length xs) (String.get xs)

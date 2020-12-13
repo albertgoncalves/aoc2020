@@ -65,8 +65,8 @@ let () : unit =
         |> Prelude.split_newlines
         |> Array.to_list in
     let f (x : string) : int =
-        Prelude.str_to_chars x
-        |> List.fold_left parse ({min = 0; max = 127}, {min = 0; max = 7})
+        Prelude.str_to_char_array x
+        |> Array.fold_left parse ({min = 0; max = 127}, {min = 0; max = 7})
         |> to_int in
     let xs : int list = List.map f xs in
     List.fold_left max 0 xs |> Printf.printf "%d\n";
