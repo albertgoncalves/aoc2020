@@ -24,7 +24,7 @@ let parse (s : string) : (instr * int) =
     if s.[4] = '+' then
         (x, n)
     else
-        (x, n * (-1))
+        (x, n * -1)
 
 let run (xs : (instr * int) array) : (halt * int) =
     let n : int = Array.length xs in
@@ -35,43 +35,35 @@ let run (xs : (instr * int) array) : (halt * int) =
         else
             match xs.(i) with
                 | (Nop, _) -> loop x (i + 1)
+                | (Jmp, n) -> loop x (i + n)
                 | (Acc, n) ->
-                    (
-                        match Hashtbl.find_opt memory i with
-                            | Some _ -> (Loop, x)
-                            | None ->
-                                (
-                                    let x : int = x + n in
-                                    Hashtbl.add memory i x;
-                                    loop x (i + 1)
-                                )
-                    )
-                | (Jmp, n) -> loop x (i + n) in
+                    match Hashtbl.find_opt memory i with
+                        | Some _ -> (Loop, x)
+                        | None ->
+                            (
+                                let x : int = x + n in
+                                Hashtbl.add memory i x;
+                                loop x (i + 1)
+                            ) in
     loop 0 0
 
 let brute_force (xs : (instr * int) array) : (int * int) =
+    let flip (i : int) : unit =
+        match xs.(i) with
+            | (Jmp, n) -> xs.(i) <- (Nop, n)
+            | (Nop, n) -> xs.(i) <- (Jmp, n)
+            | (Acc, _) -> () in
     let rec loop (i : int) : (int * int) =
         match xs.(i) with
             | (Nop, 0) | (Acc, _) -> loop (i + 1)
-            | (Jmp, n) ->
+            | (Nop, _) | (Jmp, _) ->
                 (
-                    xs.(i) <- (Nop, n);
+                    flip i;
                     match run xs with
                         | (Normal, n) -> (i, n)
                         | (Loop, _) ->
                             (
-                                xs.(i) <- (Jmp, n);
-                                loop (i + 1)
-                            )
-                )
-            | (Nop, n) ->
-                (
-                    xs.(i) <- (Jmp, n);
-                    match run xs with
-                        | (Normal, n) -> (i, n)
-                        | (Loop, _) ->
-                            (
-                                xs.(i) <- (Nop, n);
+                                flip i;
                                 loop (i + 1)
                             )
                 ) in
@@ -84,7 +76,7 @@ let () : unit =
         |> Array.map parse in
     (
         match run xs with
-            | (Normal, n) -> Printf.printf "Normal n:%d\n" n
-            | (Loop, n) ->  Printf.printf "Loop n:%d\n" n
+            | (Normal, n) -> Printf.printf "Normal\tn:%d\n" n
+            | (Loop, n) ->  Printf.printf "Loop\tn:%d\n" n
     );
-    brute_force xs |> (fun (i, n) -> Printf.printf "i:%d n:%d\n" i n)
+    brute_force xs |> (fun (i, n) -> Printf.printf "i:%d\tn:%d\n" i n)
