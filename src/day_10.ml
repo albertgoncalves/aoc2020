@@ -1,9 +1,19 @@
-let solve_1 (xs : int array) : int =
+let add_begin_end (xs : int array) : int array =
     let n : int = Array.length xs in
+    let m : int = n - 1 in
+    let xs' : int array = Array.make (n + 2) 0 in
+    for i = 0 to m do
+        xs'.(i + 1) <- xs.(i)
+    done;
+    xs'.(n + 1) <- xs.(m) + 3;
+    xs'
+
+let solve_1 (xs : int array) : int =
+    let n : int = (Array.length xs) in
     let rec loop (i : int) (a : int) (b : int) : (int * int) =
         let j : int = i + 1 in
         if j = n then
-            (a, b + 1)
+            (a, b)
         else
         if xs.(j) - xs.(i) = 3 then
             loop (i + 1) a (b + 1)
@@ -11,15 +21,27 @@ let solve_1 (xs : int array) : int =
             loop (i + 1) (a + 1) b
         else
             loop (i + 1) a b in
-    let (a, b) : (int * int) =
-        let x : int = xs.(0) in
-        if x = 1 then
-            loop 0 1 0
-        else if x = 3 then
-            loop 0 0 1
-        else
-            loop 0 0 0 in
+    let (a, b) : (int * int) = loop 0 0 0 in
     a * b
+
+let solve_2 (xs : int array) : int =
+    let n : int = Array.length xs in
+    let state : int array = Array.make n 0 in
+    state.(0) <- 1;
+    let rec loop (i : int) : int =
+        if i = n then
+            state.(n - 1)
+        else (
+            let x : int = xs.(i) in
+            let s : int = state.(i) in
+            for j = (i + 1) to (i + 3) do
+                if (j < n) && ((xs.(j) - x) <= 3) then (
+                    state.(j) <- state.(j) + s
+                );
+            done;
+            loop (i + 1)
+        ) in
+    loop 0
 
 let () : unit =
     let xs : int array =
@@ -27,4 +49,5 @@ let () : unit =
         |> Prelude.split_newlines
         |> Array.map (fun x -> Prelude.str_to_int x |> Option.get) in
     Array.sort compare xs;
-    solve_1 xs |> Printf.printf "%d\n"
+    let xs : int array = add_begin_end xs in
+    List.iter (fun f -> f xs |> Printf.printf "%d\n") [solve_1; solve_2]
