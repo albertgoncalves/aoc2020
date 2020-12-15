@@ -66,5 +66,4 @@ let () : unit =
     let n : int = xs.(0) in
     let xs : int array = Array.sub xs 1 ((Array.length xs) - 1) in
     let x : int = find_1 xs n in
-    Printf.printf "%d\n" x;
-    find_2 xs x |> Printf.printf "%d\n"
+    List.iter (Printf.printf "%d\n") [x; find_2 xs x]
