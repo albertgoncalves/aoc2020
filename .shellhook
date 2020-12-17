@@ -17,10 +17,6 @@ export FLAGS=(
     -unboxed-types
     -w +1..66
 )
-export LIBS=(
-    str.cma
-    unix.cma
-)
 export OCAMLRUNPARAM="a=0,b,c,o=80"
 
 runo () {
@@ -39,7 +35,6 @@ runo () {
         cd "$WD/build" || return
         ocamlc \
             "${FLAGS[@]}" \
-            "${LIBS[@]}" \
             "prelude.ml" \
             "$handle.ml" \
             -o "$WD/bin/$handle" \
