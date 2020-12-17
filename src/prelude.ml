@@ -9,7 +9,24 @@ let read_file (filename : string) : string =
     Bytes.to_string buffer
 
 let split_newlines (s : string) : string array =
-    Str.split (Str.regexp "\n+") s |> Array.of_list
+    let xs : string Queue.t = Queue.create () in
+    let f (i : int) (j : int) : unit =
+        if i <> j then
+            Queue.add (String.sub s i (j - i)) xs in
+    let n : int = String.length s in
+    let rec loop (i : int) (j : int) : unit =
+        if j = n then
+            f i j
+        else if s.[j] = '\n' then (
+            f i j;
+            loop (j + 1) (j + 1)
+        ) else
+            loop i (j + 1) in
+    loop 0 0;
+    Queue.to_seq xs |> Array.of_seq
+
+let is_alpha (x : char) : bool =
+    (('A' <= x) && (x <= 'Z')) || (('a' <= x) && (x <= 'z'))
 
 let is_digit (x : char) : bool =
     ('0' <= x) && (x <= '9')
