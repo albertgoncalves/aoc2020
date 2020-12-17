@@ -34,7 +34,7 @@ let solve_2 (xs : (int * int) list) : int =
     let rec loop (n : int) (m : int) (x' : int) : (int * int) list -> int =
         function
             | [] -> n
-            | (i, v)::xs as xs' ->
+            | (i, v) :: xs as xs' ->
                 if ((n + i) mod v) = 0 then
                     let m : int =
                         if x' < v then

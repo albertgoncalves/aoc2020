@@ -47,11 +47,11 @@ let find_gap (xs : int list) : int =
     let xs : int list =
         Hashtbl.to_seq_keys superset |> List.of_seq |> List.sort compare in
     let rec loop : int list -> int = function
-        | a::b::xs ->
+        | a :: b :: xs ->
             if 1 < (b - a) then
                 b
             else
-                loop (b::xs)
+                loop (b :: xs)
         | _ ->
             (
                 Printf.eprintf "find_gap\n";
