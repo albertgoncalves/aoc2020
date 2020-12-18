@@ -1,5 +1,7 @@
+type t' = Zero | One | Floating
+
 type t =
-    | Mask of (int * int) list
+    | Mask of (int * t') list
     | Mem of (int * int)
 
 let tokenize (s : string) : string array =
@@ -26,17 +28,15 @@ let parse (xs : string array) : t =
         | "mask" ->
             let s : string = xs.(1) in
             let n : int = String.length s in
-            let rec loop (i : int) : (int * int) list =
+            let rec loop (i : int) : (int * t') list =
                 if i = n then
                     []
                 else
-                    let x : char = s.[i] in
-                    if x = 'X' then
-                        loop (i + 1)
-                    else
-                        let x : (int * int) =
-                            ((n - 1) - i, (Char.code x) - (Char.code '0')) in
-                        x :: loop (i + 1) in
+                    let x : t' = match s.[i] with
+                        | '0' -> Zero
+                        | '1' -> One
+                        | _ -> Floating in
+                    ((n - 1) - i, x) :: loop (i + 1) in
             Mask (loop 0)
         | "mem" ->
             let f (i : int) : int =
@@ -58,19 +58,15 @@ let get_max_address : t array -> int =
                 a in
     Array.fold_left f 0
 
-let apply_mask (x : int) : (int * int) -> int = function
-    | (i, 1) -> x lor (1 lsl i)
-    | (i, 0) -> x land (lnot (1 lsl i))
-    | _ ->
-        (
-            Printf.eprintf "apply_mask\n";
-            exit 1
-        )
+let apply_mask_1 (x : int) : (int * t') -> int = function
+    | (i, Zero) -> x land (lnot (1 lsl i))
+    | (i, One) -> x lor (1 lsl i)
+    | (_, Floating) -> x
 
 let solve_1 (xs : t array) (n : int) : int =
     let mem : int array = Array.make n 0 in
     let m : int = Array.length xs in
-    let rec loop (xs' : (int * int) list) (i : int) : unit =
+    let rec loop (xs' : (int * t') list) (i : int) : unit =
         if i = m then
             ()
         else
@@ -78,7 +74,7 @@ let solve_1 (xs : t array) (n : int) : int =
                 | Mask xs' -> loop xs' (i + 1)
                 | Mem (j, v) ->
                     (
-                        mem.(j) <- List.fold_left apply_mask v xs';
+                        mem.(j) <- List.fold_left apply_mask_1 v xs';
                         loop xs' (i + 1)
                     ) in
     (
@@ -87,15 +83,6 @@ let solve_1 (xs : t array) (n : int) : int =
             | Mem _ -> loop [] 0
     );
     Array.fold_left (+) 0 mem
-
-let show : t -> unit = function
-    | Mask xs ->
-        (
-            Printf.printf "Mask [";
-            List.iter (fun (i, v) -> Printf.printf " (%d @ %d)," v i) xs;
-            Printf.printf " ]\n"
-        )
-    | Mem (i, v) -> Printf.printf "Mem[%d] = %d\n" i v
 
 let () : unit =
     let xs : t array =
