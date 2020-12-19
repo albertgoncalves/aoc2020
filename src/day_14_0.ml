@@ -119,5 +119,4 @@ let () : unit =
         |> Prelude.split_newlines
         |> Array.map (fun x -> tokenize x |> parse) in
     let n : int = (get_max_address xs) + 1 in
-    (* List.iter (Printf.printf "%d\n") [solve_1 xs n; solve_2 xs] *)
-    solve_2 xs |> Printf.printf "%d\n"
+    List.iter (Printf.printf "%d\n") [solve_1 xs n; solve_2 xs]
