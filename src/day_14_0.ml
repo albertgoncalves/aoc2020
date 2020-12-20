@@ -1,4 +1,7 @@
-type t' = Zero | One | Floating
+type t' =
+    | Zero
+    | One
+    | Floating
 
 type t =
     | Mask of (int * t') list

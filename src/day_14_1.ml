@@ -1,6 +1,8 @@
 type t' = (string * int)
 
-type t = Mask of string | Mem of t'
+type t =
+    | Mask of string
+    | Mem of t'
 
 let n : int = 36
 
@@ -37,8 +39,7 @@ let parse (xs : string array) : t =
     match xs.(0) with
         | "mask" -> Mask xs.(1)
         | "mem" ->
-            let f (i : int) : int =
-                Prelude.str_to_int xs.(i) |> Option.get in
+            let f (i : int) : int = Prelude.str_to_int xs.(i) |> Option.get in
             Mem (f 1 |> int_to_binary, f 2)
         | _ ->
             (
@@ -111,8 +112,7 @@ let set_negative_overlap (xs : t' Queue.t) (a : string) ((b, v) : t') : unit =
 let get_overlaps (xs : t' array) : t' array =
     let xs' : t' Queue.t = Queue.create () in
     let buffer : t' Queue.t = Queue.create () in
-    let n : int = (Array.length xs) - 1 in
-    for i = 0 to n do
+    for i = 0 to (Array.length xs) - 1 do
         let (a, v) : t' = xs.(i) in
         Queue.iter (set_negative_overlap buffer a) xs';
         Queue.transfer buffer xs';
