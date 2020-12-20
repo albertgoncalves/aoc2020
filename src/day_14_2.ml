@@ -1,3 +1,7 @@
+(* NOTE: Wouldn't have been able to work out this approach without some
+   *serious* help:
+   `https://github.com/gr-g/advent-of-code-2020/blob/7fe81abb993e401a507cfe3be8a34247a7e395b0/src/bin/14.rs` *)
+
 type t =
     | Mask of (int * int)
     | Mem of (int * int)
