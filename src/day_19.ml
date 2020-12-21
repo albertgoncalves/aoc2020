@@ -109,8 +109,9 @@ let rec traverse
                     []
 
 let tally (rules : (int, t) Hashtbl.t) (s : string) : int =
+    let n : int = String.length s in
     List.map
-        (fun i -> if i = (String.length s) then 1 else 0)
+        (fun i -> if i = n then 1 else 0)
         (traverse s 0 rules (Hashtbl.find rules 0))
     |> List.fold_left (+) 0
 
