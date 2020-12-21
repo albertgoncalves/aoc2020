@@ -81,44 +81,49 @@ let rec traverse
         (s : string)
         (i : int)
         (rules : (int, t) Hashtbl.t)
-        (rule : t) : int option =
+        (rule : t) : int list =
     if (String.length s) <= i then
-        None
+        []
     else
         match rule with
             | Seq xs ->
                 let xs : t array = Array.map (Hashtbl.find rules) xs in
                 let m : int = Array.length xs in
-                let rec loop (i : int) (j : int) : int option =
+                let rec loop (i : int) (j : int) : int list =
                     if j = m then
-                        Some i
+                        [i]
                     else
-                        match traverse s i rules xs.(j) with
-                            | Some i -> loop i (j + 1)
-                            | None -> None in
+                        List.map
+                            (fun i -> loop i (j + 1))
+                            (traverse s i rules xs.(j))
+                        |> List.concat in
                 loop i 0
             | Alt (a, b) ->
-                (
-                    match traverse s i rules (Seq a) with
-                        | Some i -> Some i
-                        | None -> traverse s i rules (Seq b)
-                )
+                List.rev_append
+                    (traverse s i rules (Seq a))
+                    (traverse s i rules (Seq b))
             | Lit x ->
                 if s.[i] = x then
-                    Some (i + 1)
+                    [i + 1]
                 else
-                    None
+                    []
 
 let tally (rules : (int, t) Hashtbl.t) (s : string) : int =
-    match traverse s 0 rules (Hashtbl.find rules 0) with
-        | Some i when i = String.length s -> 1
-        | _ -> 0
+    List.map
+        (fun i -> if i = (String.length s) then 1 else 0)
+        (traverse s 0 rules (Hashtbl.find rules 0))
+    |> List.fold_left (+) 0
 
 let () : unit =
     let (rules, xs) : ((int, t) Hashtbl.t * string array) =
         Prelude.read_file Sys.argv.(1)
         |> Prelude.split_newlines
         |> parse in
-    Array.map (tally rules) xs
-    |> Array.fold_left (+) 0
-    |> Printf.printf "%d\n"
+    let f () : unit =
+        Array.map (tally rules) xs
+        |> Array.fold_left (+) 0
+        |> Printf.printf "%d\n" in
+    f ();
+    Hashtbl.replace rules 8 (Alt ([|42|], [|42; 8|]));
+    Hashtbl.replace rules 11 (Alt ([|42; 31|], [|42; 11; 31|]));
+    f ()
