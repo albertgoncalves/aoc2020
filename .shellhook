@@ -13,9 +13,11 @@ done
 export FLAGS=(
     -ccopt "-static"
     -g
-    -o "$TARGET"
+    -nolabels
+    -strict-formats
+    -strict-sequence
     -unboxed-types
-    -w +1..66
+    -w +1..67
 )
 export OCAMLRUNPARAM="a=0,b,c,o=80"
 
