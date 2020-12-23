@@ -43,8 +43,7 @@ let parse (xs : string array) : t =
                         | _ -> loop zeros ones (i + 1) in
             Mask (loop 0 0 0)
         | "mem" ->
-            let f (i : int) : int =
-                Prelude.str_to_int xs.(i) |> Option.get in
+            let f (i : int) : int = Prelude.str_to_int xs.(i) |> Option.get in
             Mem (f 1, f 2)
         | _ ->
             (
@@ -92,6 +91,10 @@ let solve_2 (xs : t array) : int =
     let n : int = Array.length xs in
     let mem : (int * int * int) Queue.t = Queue.create () in
     let buffer : (int * int * int) Queue.t = Queue.create () in
+    let f (a0 : int) (m0 : int) ((a1, m1, v1) : (int * int * int)) : unit =
+        match intersect (a0, m0) (a1, m1) with
+            | None -> ()
+            | Some (a, m) -> Queue.add (a, m, -v1) buffer in
     let rec loop (zeros : int) (ones : int) (i : int) : unit =
         if i = n then
             ()
@@ -102,22 +105,14 @@ let solve_2 (xs : t array) : int =
                     (
                         let mask : int = zeros lor ones in
                         let address : int = (address lor ones) land mask in
-                        Queue.iter
-                            (
-                                fun (a, m, v) ->
-                                    match intersect (address, mask) (a, m) with
-                                        | None -> ()
-                                        | Some (a', m') ->
-                                            Queue.add (a', m', -v) buffer
-                            )
-                            mem;
+                        Queue.iter (f address mask) mem;
                         Queue.transfer buffer mem;
                         Queue.add (address, mask, value) mem;
                         loop zeros ones (i + 1)
                     ) in
     loop 0 0 0;
     Queue.fold
-        (fun x (_, m, v) -> ((1 lsl (count_ones (lnot m))) * v) + x)
+        (fun x (_, m, v) -> ((1 lsl (lnot m |> count_ones)) * v) + x)
         0
         mem
 
