@@ -13,7 +13,7 @@ let parse (xs : string array) : (int Queue.t * int Queue.t) =
                 | None -> i + 1 in
     let ls : int Queue.t = Queue.create () in
     let rs : int Queue.t = Queue.create () in
-    ignore (loop rs (loop ls 1));
+    loop ls 1 |> loop rs |> ignore;
     (ls, rs)
 
 let rec run_1 (ls : int Queue.t) (rs : int Queue.t) : int Queue.t =
