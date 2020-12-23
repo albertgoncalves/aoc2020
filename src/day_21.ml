@@ -79,8 +79,8 @@ let continue (table : (string, StrSet.t) Hashtbl.t) : bool =
     loop keys
 
 let show (key : string) (value : StrSet.t) : unit =
-    Printf.printf "{ %S, [ " key;
-    StrSet.iter (Printf.printf "%S ") value;
+    Printf.printf "{ %-12S: [ " key;
+    StrSet.iter (Printf.printf "%-9S ") value;
     Printf.printf "] }\n"
 
 let () : unit =
