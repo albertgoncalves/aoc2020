@@ -94,18 +94,28 @@ let bool_to_int (x : bool) : int =
 let tally (mem : (coord, bool) Hashtbl.t) : int =
     Hashtbl.to_seq_values mem |> Seq.map bool_to_int |> Seq.fold_left (+) 0
 
+let global_neighbors : (coord, coord array) Hashtbl.t =
+    Hashtbl.create 2048
+
 let get_neighbors (c : coord) : coord array =
-    Array.map
-        convert
-        [|
-            East;
-            SouthEast;
-            SouthWest;
-            West;
-            NorthWest;
-            NorthEast;
-        |]
-    |> Array.map ((|+) c)
+    match Hashtbl.find_opt global_neighbors c with
+        | Some xs -> xs
+        | None ->
+            (
+                let xs : token array =
+                    [|
+                        East;
+                        SouthEast;
+                        SouthWest;
+                        West;
+                        NorthWest;
+                        NorthEast;
+                    |] in
+                let xs : coord array =
+                    Array.map convert xs |> Array.map ((|+) c) in
+                Hashtbl.add global_neighbors c xs;
+                xs
+            )
 
 let count_neighbors
         (mem : (coord, bool) Hashtbl.t) : coord array -> bool array =
