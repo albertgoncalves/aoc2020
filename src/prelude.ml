@@ -43,6 +43,3 @@ let str_to_int (s : string) : int option =
             else
                 None in
     loop 0 1 ((String.length s) - 1)
-
-let str_to_char_array (s : string) : char array =
-    Array.init (String.length s) (String.get s)
