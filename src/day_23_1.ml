@@ -15,23 +15,15 @@ let show (x : t) : unit =
     loop x.next;
     Printf.printf "]\n"
 
-let get_table (xs : int array) : (int, t) Hashtbl.t =
+let get_table (xs : int array) : t array =
     let n : int = Array.length xs in
     let m : int = n - 1 in
-    let table : (int, t) Hashtbl.t = Hashtbl.create n in
-    for i = 0 to m do
-        let value : int = xs.(i) in
-        let x : t = {
-            value = value;
-            next = None;
-        } in
-        Hashtbl.add table value x
-    done;
+    let table : t array =
+        Array.init n (fun i -> { value = (i + 1); next = None}) in
     for i = 0 to (m - 1) do
-        let x : t = Hashtbl.find table xs.(i) in
-        x.next <- Some (Hashtbl.find table xs.(i + 1))
+        table.(xs.(i) - 1).next <- Some (table.(xs.(i + 1) - 1))
     done;
-    (Hashtbl.find table xs.(m)).next <- Some (Hashtbl.find table xs.(0));
+    table.(xs.(m) - 1).next <- Some (table.(xs.(0) - 1));
     table
 
 let slice_3 (x : t) : (t * t) =
@@ -62,38 +54,46 @@ let rec find (target : int) (n : int) (x : t) : bool =
     else
         find target (n - 1) (x.next |> Option.get)
 
-let run (x : t) (m : int) (table : (int, t) Hashtbl.t) : t =
+let run (x : t) (m : int) (table : t array) : t =
     let (front, back) : (t * t) = slice_3 x in
-    let value : int ref = (m + (x.value - 1)) mod m |> ref in
-    value := if !value = 0 then m else !value;
+    let value : int ref =
+        let v : int = (m + (x.value - 1)) mod m in
+        if v = 0 then
+            ref m
+        else
+            ref v in
     while find !value 2 front do
-        let v : int = (m + (!value - 1)) mod m in
-        value := if v = 0 then m else v
+        value :=
+            let v : int = (m + (!value - 1)) mod m in
+            if v = 0 then
+                m
+            else
+                v
     done;
-    inject (Hashtbl.find table !value) front back;
+    inject (table.(!value - 1)) front back;
     x.next |> Option.get
 
 let solve_1 (m : int) (xs : int array) : unit =
-    let table : (int, t) Hashtbl.t = get_table xs in
+    let table : t array = get_table xs in
     let rec loop (x : t) (n : int) : unit =
         if n <= 0 then
             ()
         else
             loop (run x 9 table) (n - 1) in
-    loop (Hashtbl.find table xs.(0)) m;
-    show (Hashtbl.find table 1)
+    loop table.(xs.(0) - 1) m;
+    table.(0) |> show
 
 let solve_2 (m : int) (xs : int array) : unit =
     let xs : int array =
-        Array.concat [xs; Array.init (1000000 - 9) (fun i -> i + 10)] in
-    let table : (int, t) Hashtbl.t = get_table xs in
+        Array.append xs (Array.init (1000000 - 9) (fun i -> i + 10)) in
+    let table : t array = get_table xs in
     let rec loop (x : t) (n : int) : unit =
         if n <= 0 then
             ()
         else
             loop (run x 1000000 table) (n - 1) in
-    loop (Hashtbl.find table xs.(0)) m;
-    let a : t = (Hashtbl.find table 1).next |> Option.get in
+    loop (table.(xs.(0) - 1)) m;
+    let a : t = table.(0).next |> Option.get in
     let b : t = a.next |> Option.get in
     Printf.printf "%d\n" (a.value * b.value)
 
