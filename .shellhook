@@ -11,8 +11,6 @@ for x in bin build; do
 done
 
 export FLAGS=(
-    -ccopt "-static"
-    -g
     -nolabels
     -strict-formats
     -strict-sequence
